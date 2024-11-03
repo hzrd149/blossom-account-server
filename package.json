@@ -1,0 +1,59 @@
+{
+  "name": "blossom-account-server",
+  "version": "0.1.0",
+  "description": "A account based blossom server",
+  "main": "build/index.js",
+  "type": "module",
+  "author": "hzrd149",
+  "license": "MIT",
+  "scripts": {
+    "start": "node build/index.js",
+    "build": "tsc",
+    "dev": "nodemon -i '**/data/**' --exec 'node' --loader @swc-node/register/esm src/index.ts",
+    "format": "prettier -w ."
+  },
+  "bin": "build/index.js",
+  "files": [
+    "build",
+    "public"
+  ],
+  "keywords": [
+    "nostr",
+    "blossom"
+  ],
+  "dependencies": {
+    "@cashu/cashu-ts": "2.0.0-rc1",
+    "@koa/cors": "^5.0.0",
+    "@koa/router": "^13.1.0",
+    "better-sqlite3": "^11.5.0",
+    "blossom-server-sdk": "^0.7.2",
+    "debug": "^4.3.7",
+    "http-errors": "^2.0.0",
+    "koa": "^2.15.3",
+    "koa-body": "^6.0.1",
+    "koa-mount": "^4.0.0",
+    "koa-static": "^5.0.0",
+    "mime": "^4.0.4",
+    "mkdirp": "^3.0.1",
+    "nanoid": "^5.0.8",
+    "nostr-tools": "^2.10.1",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@swc-node/register": "^1.9.0",
+    "@swc/core": "^1.7.26",
+    "@swc/types": "^0.1.12",
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/debug": "^4.1.12",
+    "@types/http-errors": "^2.0.4",
+    "@types/koa": "^2.15.0",
+    "@types/koa-static": "^4.0.4",
+    "@types/koa__cors": "^5.0.0",
+    "@types/koa__router": "^12.0.4",
+    "@types/node": "^22.8.7",
+    "changeset": "^0.2.6",
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  },
+  "packageManager": "pnpm@9.12.2"
+}

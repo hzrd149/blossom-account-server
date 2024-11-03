@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "dev",
+      "type": "node",
+      "request": "launch",
+      "args": ["./src/index.ts"],
+      "runtimeArgs": ["--loader", "@swc-node/register/esm"],
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart",
+      "outputCapture": "std",
+      "env": {
+        "DEBUG": "blossom,blossom:*"
+      }
+    },
+    {
+      "name": "start",
+      "type": "node",
+      "request": "launch",
+      "args": ["./build/index.js"],
+      "cwd": "${workspaceRoot}",
+      "protocol": "inspector",
+      "internalConsoleOptions": "openOnSessionStart",
+      "outputCapture": "std",
+      "env": {
+        "DEBUG": "blossom,blossom:*",
+        "DEBUG_COLORS": "1"
+      }
+    }
+  ]
+}
