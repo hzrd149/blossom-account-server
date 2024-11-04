@@ -1,9 +1,11 @@
 import { html, LitElement } from "./lib/lit.min.js";
 import { unixNow, newExpirationValue } from "./utils.js";
+import "./account-cards.js";
 
 export class AccountPage extends LitElement {
   static properties = {
     status: { state: true, type: String },
+    auth: { state: true, type: Object },
     accounts: { state: true, type: Array },
   };
 
@@ -13,13 +15,13 @@ export class AccountPage extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.update();
+    this.getAuth().then(() => this.fetchAccounts());
   }
 
-  async update() {
+  async getAuth() {
     try {
       this.status = "Requesting signature...";
-      const auth = await window.nostr.signEvent({
+      this.auth = await window.nostr.signEvent({
         kind: 24242,
         content: "Check account",
         tags: [
@@ -28,12 +30,19 @@ export class AccountPage extends LitElement {
         ],
         created_at: unixNow(),
       });
+    } catch (error) {
+      alert(error.message);
+      this.status = "";
+    }
+  }
 
+  async fetchAccounts() {
+    try {
       this.status = "Loading...";
-      const authorization = "Nostr " + btoa(JSON.stringify(auth));
+      const authorization = "Nostr " + btoa(JSON.stringify(this.auth));
       const res = await fetch("/account", { headers: { authorization } });
 
-      if (!res.ok) throw new Error(res.headers.get("x-reason") || "Upload Rejected");
+      if (!res.ok) throw new Error(res.headers.get("x-reason") || "Failed to get account details");
 
       this.accounts = await res.json();
       console.log(this.accounts);
@@ -44,13 +53,8 @@ export class AccountPage extends LitElement {
   }
 
   render() {
-    return html`<div class="w-full px-10 pt-10 pb-6 bg-white rounded-xl flex flex-col">
-      <div class="text-center">
-        <h1 class="mt-2 text-3xl font-bold text-gray-900">🌸 Blossom Server</h1>
-        <p class="mt-2 text-sm text-gray-400">Blobs stored simply on mediaservers</p>
-        <a class="text-sm text-blue-400" href="https://github.com/hzrd149/blossom-account-server">Github</a>
-      </div>
-      <pre>${JSON.stringify(this.accounts, null, 2)}</pre>
+    return html`<div class="w-full bg-white rounded-xl flex flex-col">
+      <account-cards .accounts=${this.accounts}></account-cards>
     </div>`;
   }
 }

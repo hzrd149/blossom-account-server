@@ -1,7 +1,7 @@
 import { CommonState, router } from "./router.js";
 import { metadata } from "../database/db.js";
 import storage from "../storage/index.js";
-import { Account, deductAccount, getAccount } from "../database/methods.js";
+import { Account, deductAccount, getAccountFromPubkey } from "../database/methods.js";
 import { DOWNLOAD_COST, UNIT } from "../env.js";
 import { GIGABYTE } from "../const.js";
 import { formatFileSize, getHashFromParams } from "../helpers/koa.js";
@@ -14,7 +14,7 @@ router.get<CommonState>("/:hash", async (ctx) => {
   if (!(await metadata.hasBlob(hash)) || !(await storage.hasBlob(hash))) return ctx.throw(404, "Not found");
 
   const owners = await metadata.listOwners(hash);
-  const accounts = owners.map(getAccount).filter((a) => !!a && a.download > 0) as Account[];
+  const accounts = owners.map(getAccountFromPubkey).filter((a) => !!a && a.download > 0) as Account[];
 
   // TODO: upgrade to 402
   if (accounts.length === 0) return ctx.throw(400, "Download balance depleted");

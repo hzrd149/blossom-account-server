@@ -35,7 +35,10 @@ export type Account = {
   download: number;
 };
 
-export function getAccount(pubkey: string) {
+export function getAccount(id: string) {
+  return db.prepare<string, Account>(`SELECT * FROM accounts WHERE id = ?`).get(id);
+}
+export function getAccountFromPubkey(pubkey: string) {
   return db.prepare<string, Account>(`SELECT * FROM accounts WHERE pubkey = ?`).get(pubkey);
 }
 
@@ -44,20 +47,20 @@ export function createAccount(pubkey: string) {
   db.prepare<[string, string]>(`INSERT INTO accounts (pubkey, payment) VALUES (?, ?)`).run(pubkey, payment);
 }
 
-export function checkAccount(pubkey: string, name: AccountType) {
-  const account = getAccount(pubkey);
+export function checkAccount(pubkey: string, type: AccountType) {
+  const account = getAccountFromPubkey(pubkey);
   if (!account) return false;
-  return account[name] > 0;
+  return account[type] > 0;
 }
 
 /** @param amount amount in msats */
-export function topupAccount(pubkey: string, account: AccountType, amount: number) {
-  db.prepare<[number, string]>(`UPDATE accounts SET ${account} = ${account} + ? WHERE pubkey = ?`).run(amount, pubkey);
+export function topupAccount(pubkey: string, type: AccountType, amount: number) {
+  db.prepare<[number, string]>(`UPDATE accounts SET ${type} = ${type} + ? WHERE pubkey = ?`).run(amount, pubkey);
 }
 
 /** @param amount amount in msats */
-export function deductAccount(pubkey: string, account: AccountType, amount: number) {
-  db.prepare<[number, string]>(`UPDATE accounts SET ${account} = MAX(${account} - ?, 0) WHERE pubkey = ?`).run(
+export function deductAccount(pubkey: string, type: AccountType, amount: number) {
+  db.prepare<[number, string]>(`UPDATE accounts SET ${type} = MAX(${type} - ?, 0) WHERE pubkey = ?`).run(
     amount,
     pubkey,
   );
