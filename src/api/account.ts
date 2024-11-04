@@ -16,11 +16,11 @@ import logger from "../logger.js";
 
 const log = logger.extend("Account");
 
-function createPaymentRequest(pubkey: string, account: string, host: string) {
+function createPaymentRequest(pubkey: string, account: string, host: string, amount?: number) {
   return new PaymentRequest(
     [{ type: PaymentRequestTransportType.POST, target: new URL("/account", host).toString() }],
     [pubkey, account].join("-"),
-    undefined,
+    amount,
     UNIT,
     MINTS.map((mint) => mint.mintUrl),
     account,
@@ -61,7 +61,7 @@ router.get("/account", async (ctx) => {
       description: "Used for uploaded",
       rate: `${UPLOAD_COST}${UNIT}/Gb`,
       balance: account.upload / 1000,
-      payment: createPaymentRequest(pubkey, "upload", ctx.href),
+      payment: createPaymentRequest(pubkey, "upload", ctx.href, Math.round(UPLOAD_COST * 10)),
     });
 
   if (STORAGE_COST > 0)
@@ -70,7 +70,7 @@ router.get("/account", async (ctx) => {
       description: "Used to store your blobs",
       rate: `${STORAGE_COST}${UNIT}/Gb/Month`,
       balance: account.storage / 1000,
-      payment: createPaymentRequest(pubkey, "storage", ctx.href),
+      payment: createPaymentRequest(pubkey, "storage", ctx.href, Math.round(STORAGE_COST * 10)),
     });
 
   if (DOWNLOAD_COST > 0)
@@ -79,7 +79,7 @@ router.get("/account", async (ctx) => {
       description: "Used when others download your blobs",
       rate: `${DOWNLOAD_COST}${UNIT}/Gb`,
       balance: account.download / 1000,
-      payment: createPaymentRequest(pubkey, "download", ctx.href),
+      payment: createPaymentRequest(pubkey, "download", ctx.href, Math.round(DOWNLOAD_COST * 10)),
     });
 
   ctx.body = accounts;
