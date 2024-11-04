@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import Koa, { HttpError } from "koa";
+import Koa from "koa";
 import serve from "koa-static";
 import path from "node:path";
 import cors from "@koa/cors";
@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import logger from "./logger.js";
 import router from "./api/index.js";
 import { isHttpError } from "./helpers/error.js";
+import "./cron.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

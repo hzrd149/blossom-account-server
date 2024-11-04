@@ -2,10 +2,10 @@ import { CommonState, log, router, saveAuthToken } from "./router.js";
 import { hasUsedToken } from "../database/methods.js";
 import { metadata } from "../database/db.js";
 import storage from "../storage/index.js";
-import requireHash, { HashState } from "../middleware/hash.js";
+import { getHashFromParams } from "../helpers/koa.js";
 
-router.delete<CommonState & HashState>("/:hash", requireHash(), async (ctx) => {
-  const { hash } = ctx.state;
+router.delete<CommonState>("/:hash", async (ctx) => {
+  const hash = getHashFromParams(ctx);
 
   if (!ctx.state.auth) return ctx.throw(401, "Missing Auth event");
   if (ctx.state.authType !== "delete") return ctx.throw(400, "Incorrect Auth type");

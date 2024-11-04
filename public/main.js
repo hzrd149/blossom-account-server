@@ -1,7 +1,6 @@
 import { html, LitElement } from "./lib/lit.min.js";
 import "./upload-form.js";
-import "./list-blobs.js";
-import "./mirror-blobs.js";
+import "./account-page.js";
 
 export class BlossomApp extends LitElement {
   static properties = {
@@ -25,11 +24,8 @@ export class BlossomApp extends LitElement {
 
     let content = "";
     switch (hash) {
-      case "#list":
-        content = html`<list-blobs class="z-10 sm:max-w-4xl w-full"></list-blobs>`;
-        break;
-      case "#mirror":
-        content = html`<mirror-blobs class="z-10 sm:max-w-4xl w-full"></mirror-blobs>`;
+      case "#account":
+        content = html`<account-page class="z-10 sm:max-w-4xl w-full"></account-page>`;
         break;
       case "#upload":
       default:

@@ -18,4 +18,14 @@ db.prepare(
 	)`,
 ).run();
 
+db.prepare(
+  `CREATE TABLE IF NOT EXISTS accounts (
+		pubkey TEXT(64) PRIMARY KEY,
+		payment TEXT(16),
+		upload INTEGER DEFAULT 0,
+		storage INTEGER DEFAULT 0,
+		download INTEGER DEFAULT 0
+	)`,
+).run();
+
 export default db;

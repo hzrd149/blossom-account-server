@@ -1,8 +1,6 @@
 import { html, LitElement } from "./lib/lit.min.js";
 import { unixNow, newExpirationValue, getFileSha256, formatBytes } from "./utils.js";
 
-import "./open-blob-form.js";
-
 export class UploadForm extends LitElement {
   static properties = {
     selected: { state: true },
@@ -119,9 +117,9 @@ export class UploadForm extends LitElement {
 
     return html`<div class="w-full px-10 pt-10 pb-6 bg-white rounded-xl flex flex-col">
       <div class="text-center">
-        <h1 class="mt-5 text-3xl font-bold text-gray-900">🌸 Blossom Server</h1>
+        <h1 class="mt-2 text-3xl font-bold text-gray-900">🌸 Blossom Server</h1>
         <p class="mt-2 text-sm text-gray-400">Blobs stored simply on mediaservers</p>
-        <a class="text-sm text-blue-400" href="https://github.com/hzrd149/blossom-server">Github</a>
+        <a class="text-sm text-blue-400" href="https://github.com/hzrd149/blossom-account-server">Github</a>
       </div>
       <form class="space-y-3" @submit="${this.upload}">
         <div class="grid grid-cols-1 space-y-2">
@@ -142,16 +140,15 @@ export class UploadForm extends LitElement {
           >
             ${this.status || "Upload"}
           </button>
+          <a
+            href="#account"
+            class="my-3 w-full flex justify-center text-blue-500 tracking-wide font-semibold hover:text-blue-600 cursor-pointer transition ease-in duration-300"
+          >
+            View Account
+          </a>
         </div>
       </form>
 
-      <get-blob-form></get-blob-form>
-
-      <div class="flex gap-4 mt-2">
-        <a class="text-md text-blue-500" href="#list">List Blobs</a>
-        ${window.nostr && html`<a class="text-md text-blue-500" href="#mirror">Mirror Blobs</a>`}
-        <!-- <a class="text-md text-red-500" href="#delete">Request delete</a> -->
-      </div>
       <a class="text-sm text-blue-400 ml-auto mt-4" href="https://github.com/hzrd149/blossom">🌸 Blossom Spec</a>
     </div>`;
   }

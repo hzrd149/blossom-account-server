@@ -1,14 +1,8 @@
 import { NostrEvent } from "nostr-tools";
+import { nanoid } from "nanoid";
 
 import db from "./db.js";
-import { unixNow } from "../helpers/date.js";
-
-export async function updateBlobAccess(blob: string, accessed = unixNow()) {
-  db.prepare(`INSERT or replace INTO accessed (blob, timestamp) VALUES (?, ?)`).run(blob, accessed);
-}
-export async function forgetBlobAccessed(blob: string) {
-  db.prepare(`DELETE FROM accessed WHERE blob = ?`).run(blob);
-}
+import { BlobMetadata } from "blossom-server-sdk";
 
 export async function addToken(token: { id: string; event: NostrEvent; expiration: number; type: string }) {
   db.prepare(`INSERT INTO tokens (id, pubkey, type, expiration, event) VALUES (?, ?, ?, ?, ?)`).run(
@@ -21,4 +15,50 @@ export async function addToken(token: { id: string; event: NostrEvent; expiratio
 }
 export function hasUsedToken(token: string) {
   return !!db.prepare(`SELECT * FROM tokens WHERE id = ?`).get(token);
+}
+
+export function getAllBlobAndOwners() {
+  return db
+    .prepare<[], BlobMetadata & { owners: string }>(
+      `SELECT blobs.*, group_concat(owners.pubkey) as owners FROM blobs INNER JOIN owners ON owners.blob = blobs.sha256 GROUP BY blobs.sha256`,
+    )
+    .all()
+    .map((row) => ({ ...row, owners: row.owners.split(",") }));
+}
+
+export type AccountType = "upload" | "download" | "storage";
+export type Account = {
+  pubkey: string;
+  payment: string;
+  upload: number;
+  storage: number;
+  download: number;
+};
+
+export function getAccount(pubkey: string) {
+  return db.prepare<string, Account>(`SELECT * FROM accounts WHERE pubkey = ?`).get(pubkey);
+}
+
+export function createAccount(pubkey: string) {
+  const payment = nanoid(16);
+  db.prepare<[string, string]>(`INSERT INTO accounts (pubkey, payment) VALUES (?, ?)`).run(pubkey, payment);
+}
+
+export function checkAccount(pubkey: string, name: AccountType) {
+  const account = getAccount(pubkey);
+  if (!account) return false;
+  return account[name] > 0;
+}
+
+/** @param amount amount in msats */
+export function topupAccount(pubkey: string, account: AccountType, amount: number) {
+  db.prepare<[number, string]>(`UPDATE accounts SET ${account} = ${account} + ? WHERE pubkey = ?`).run(amount, pubkey);
+}
+
+/** @param amount amount in msats */
+export function deductAccount(pubkey: string, account: AccountType, amount: number) {
+  db.prepare<[number, string]>(`UPDATE accounts SET ${account} = MAX(${account} - ?, 0) WHERE pubkey = ?`).run(
+    amount,
+    pubkey,
+  );
 }

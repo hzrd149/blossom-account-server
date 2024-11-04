@@ -2,13 +2,20 @@ import HttpErrors from "http-errors";
 import { BlobMetadata } from "blossom-server-sdk";
 import fs from "fs";
 
-import { CommonState, getBlobDescriptor, log, router, saveAuthToken } from "./router.js";
-import { hasUsedToken } from "../database/methods.js";
+import { CommonState, getBlobDescriptor, router, saveAuthToken } from "./router.js";
+import { checkAccount, hasUsedToken, deductAccount } from "../database/methods.js";
 import uploadMiddleware, { TempFileState } from "../middleware/upload.js";
 import { getFileHash } from "../helpers/file.js";
 import { metadata } from "../database/db.js";
 import storage from "../storage/index.js";
 import { unixNow } from "../helpers/date.js";
+import { UNIT, UPLOAD_COST } from "../env.js";
+import { GIGABYTE } from "../const.js";
+import logger from "../logger.js";
+import { npubEncode } from "nostr-tools/nip19";
+import { formatFileSize } from "../helpers/koa.js";
+
+const log = logger.extend("Upload");
 
 type UploadState = CommonState & {
   contentType: string;
@@ -28,7 +35,7 @@ router.all<CommonState>("/upload", async (ctx, next) => {
       throw new HttpErrors.BadRequest("Auth missing sha256");
     }
 
-    // check rules
+    // get content type and length
     const contentType = ctx.header["content-type"] || (ctx.header["x-content-type"] as string | undefined);
     let contentLength: number | undefined = undefined;
     if (typeof ctx.header["x-content-length"] === "string") {
@@ -36,6 +43,11 @@ router.all<CommonState>("/upload", async (ctx, next) => {
     } else if (ctx.header["content-length"]) {
       contentLength = parseInt(ctx.header["content-length"]);
     }
+
+    // check auth
+    if (!ctx.state.auth) return ctx.throw(401, "Auth required");
+    if ((await checkAccount(ctx.state.auth.pubkey, "upload")) === false)
+      return ctx.throw(400, "Upload balance depleted");
 
     // set tmp state
     ctx.state.contentType = contentType;
@@ -56,7 +68,6 @@ router.put<UploadState & TempFileState>("/upload", uploadMiddleware(), async (ct
 
   const hash = await getFileHash(ctx.state.uploadPath);
 
-  // if auth is required, check to see if the sha256 is in the auth event
   if (!ctx.state.auth) return ctx.throw(401, "Auth required");
   if (!ctx.state.auth.tags.some((t) => t[0] === "x" && t[1] === hash)) return ctx.throw(400, "Incorrect blob sha256");
 
@@ -72,13 +83,23 @@ router.put<UploadState & TempFileState>("/upload", uploadMiddleware(), async (ct
     blob = metadata.getBlob(hash);
   }
 
+  const pubkey = ctx.state.auth.pubkey;
+
   // add owner
-  if (ctx.state.auth.pubkey && !metadata.hasOwner(hash, ctx.state.auth.pubkey)) {
-    await metadata.addOwner(blob.sha256, ctx.state.auth.pubkey);
+  if (pubkey && !metadata.hasOwner(hash, pubkey)) {
+    await metadata.addOwner(blob.sha256, pubkey);
   }
 
   // remember the auth token
   saveAuthToken(ctx.state.auth);
+
+  // deduct account
+  if (UPLOAD_COST > 0) {
+    const sizeInGb = ctx.state.uploadSize / GIGABYTE;
+    const cost = Math.round(Math.max(sizeInGb * UPLOAD_COST * 1000, 1));
+    log(`Charging ${npubEncode(pubkey)} ${cost / 1000}${UNIT} for ${formatFileSize(ctx.state.uploadSize)} uploaded`);
+    await deductAccount(pubkey, "upload", cost);
+  }
 
   ctx.status = 200;
   ctx.body = getBlobDescriptor(blob, ctx.request);
