@@ -14,6 +14,7 @@ import "./cron.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = new Koa();
+app.proxy = true;
 
 // set CORS headers
 app.use(
