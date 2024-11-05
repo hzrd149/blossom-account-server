@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { CashuMint, decodePaymentRequest } from "@cashu/cashu-ts";
+import logger from "./logger.js";
 
 if (!process.env.MINTS) throw new Error("Missing MINTS");
 if (!process.env.UNIT) throw new Error("Missing UNIT");
@@ -16,10 +17,10 @@ if (MINTS.length === 0) throw new Error("Requires at least one mint");
 for (const mint of MINTS) {
   try {
     const info = await mint.getInfo();
-    console.log(`Connected to ${info.name} mint`);
+    logger(`Connected to mint: ${info.name}`);
   } catch (error) {
-    console.log(`Failed to connect to mint: ${mint.mintUrl}`);
-    console.log(error);
+    logger(`Failed to connect to mint: ${mint.mintUrl}`);
+    logger(error);
     process.exit(1);
   }
 }

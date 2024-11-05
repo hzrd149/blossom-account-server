@@ -53,9 +53,7 @@ function uploadMiddleware(): Middleware<TempFileState> {
             try {
               await pfs.unlink(uploadPath);
               console.log(`Cleaned up temp file: ${uploadPath}`);
-            } catch (err) {
-              console.error(`Error cleaning up temp file ${uploadPath}:`, err);
-            }
+            } catch (err) {}
           }
         };
 
@@ -64,14 +62,11 @@ function uploadMiddleware(): Middleware<TempFileState> {
         ctx.res.on("close", cleanup);
         ctx.res.on("error", cleanup);
       } catch (error) {
-        console.error("Error in temp file middleware:", error);
         // Try to clean up if there was an error
         if (uploadPath) {
           try {
             await pfs.unlink(uploadPath);
-          } catch (cleanupError) {
-            console.error("Error during cleanup:", cleanupError);
-          }
+          } catch (error) {}
         }
         throw error;
       }
