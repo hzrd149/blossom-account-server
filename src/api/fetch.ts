@@ -16,8 +16,9 @@ router.get<CommonState>("/:hash", async (ctx) => {
   const owners = await metadata.listOwners(hash);
   const accounts = owners.map(getAccount).filter((a) => !!a && a.download > 0) as Account[];
 
-  // TODO: upgrade to 402
-  if (accounts.length === 0) return ctx.throw(400, "Download balance depleted");
+  if (DOWNLOAD_COST > 0 && accounts.length === 0) {
+    return ctx.throw(400, "Download balance depleted");
+  }
 
   const blob = await metadata.getBlob(hash);
 

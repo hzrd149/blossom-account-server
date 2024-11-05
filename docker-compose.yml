@@ -1,0 +1,27 @@
+volumes:
+  data: {}
+
+services:
+  blossom:
+    image: ghcr.io/hzrd149/blossom-account-server:master
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      # upload cose (unit x Gb)
+      UPLOAD_COST: "0"
+      # storage cost (unit x Gb per 30 days)
+      STORAGE_COST: "10"
+      # download cost (unit x Gb)
+      DOWNLOAD_COST: "10"
+      # Cashu payment request for payouts
+      PAYOUT: "creqApGF0gaNhdGVub3N0cmFheKlucHJvZmlsZTFxeTI4d3VtbjhnaGo3dW45ZDNzaGp0bnl2OWtoMnVld2Q5aHN6OW1od2RlbjV0ZTB3ZmprY2N0ZTljdXJ4dmVuOWVlaHFjdHJ2NWhzenJ0aHdkZW41dGUwZGVoaHh0bnZkYWtxcWc5aGhoeTBzcXpqcW5jNnU3cmc1a3B6d2tzbmNseTY3aDJocW4wN3Q2bGN6ejAydjJxeHBxOW5kdm01YWeBgmFuYjE3YWloNmNjOWJjNWZhdWNzYXRhbYF4G2h0dHBzOi8vdGVzdG51dC5jYXNodS5zcGFjZQ"
+      # Mint info
+      UNIT: "sat"
+      MINTS: "https://testnut.cashu.space"
+
+    volumes:
+      # mount data volume
+      - data:/app/data
+      # mount custom www dir
+      # - ./public:/app/public
