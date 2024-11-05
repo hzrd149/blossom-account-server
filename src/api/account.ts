@@ -2,14 +2,7 @@ import { PaymentRequest, PaymentRequestPayload, PaymentRequestTransportType } fr
 import { npubEncode } from "nostr-tools/nip19";
 import { koaBody } from "koa-body";
 
-import {
-  Account,
-  AccountType,
-  createAccount,
-  getAccount,
-  getAccountFromPubkey,
-  topupAccount,
-} from "../database/methods.js";
+import { Account, AccountType, createAccount, getAccount, topupAccount } from "../database/methods.js";
 import { router } from "./router.js";
 import { DOWNLOAD_COST, MINTS, STORAGE_COST, UNIT, UPLOAD_COST } from "../env.js";
 import logger from "../logger.js";
@@ -44,10 +37,10 @@ router.get("/account", async (ctx) => {
   const pubkey = ctx.state.auth.pubkey;
   let account: Account | undefined;
 
-  account = await getAccountFromPubkey(pubkey);
+  account = await getAccount(pubkey);
   if (!account) {
     await createAccount(pubkey);
-    account = await getAccountFromPubkey(pubkey);
+    account = await getAccount(pubkey);
   }
 
   if (!account) return ctx.throw(404, "Missing account");
@@ -60,8 +53,8 @@ router.get("/account", async (ctx) => {
       name: "Upload",
       description: "Used for uploaded",
       rate: `${UPLOAD_COST}${UNIT}/Gb`,
-      balance: account.upload / 1000,
-      payment: createPaymentRequest(pubkey, "upload", ctx.href, Math.round(UPLOAD_COST * 10)),
+      balance: account.upload,
+      payment: createPaymentRequest(pubkey, "upload", ctx.href),
     });
 
   if (STORAGE_COST > 0)
@@ -69,8 +62,8 @@ router.get("/account", async (ctx) => {
       name: "Storage",
       description: "Used to store your blobs",
       rate: `${STORAGE_COST}${UNIT}/Gb/Month`,
-      balance: account.storage / 1000,
-      payment: createPaymentRequest(pubkey, "storage", ctx.href, Math.round(STORAGE_COST * 10)),
+      balance: account.storage,
+      payment: createPaymentRequest(pubkey, "storage", ctx.href),
     });
 
   if (DOWNLOAD_COST > 0)
@@ -78,8 +71,8 @@ router.get("/account", async (ctx) => {
       name: "Distribution",
       description: "Used when others download your blobs",
       rate: `${DOWNLOAD_COST}${UNIT}/Gb`,
-      balance: account.download / 1000,
-      payment: createPaymentRequest(pubkey, "download", ctx.href, Math.round(DOWNLOAD_COST * 10)),
+      balance: account.download,
+      payment: createPaymentRequest(pubkey, "download", ctx.href),
     });
 
   ctx.body = accounts;
@@ -87,20 +80,20 @@ router.get("/account", async (ctx) => {
 
 // topup account
 router.post("/account", koaBody(), async (ctx) => {
-  const payment = ctx.body as PaymentRequestPayload;
+  const payment = ctx.request.body as PaymentRequestPayload;
   if (!payment.id) return ctx.throw(400, "Missing payment id");
   if (payment.unit !== UNIT) return ctx.throw(400, "Incorrect unit");
 
   const mint = MINTS.find((m) => m.mintUrl === payment.mint);
   if (!mint) return ctx.throw(400, "Unacceptable mint");
 
-  const [id, type] = payment.id.split("-");
-  if (!id || !type) return ctx.throw(400, "Invalid payment id");
+  const [pubkey, type] = payment.id.split("-");
+  if (!pubkey || !type) return ctx.throw(400, "Invalid payment id");
 
   // ensure payment type
-  if (["upload", "download", "storage"].includes(type)) return ctx.throw(400, "Invalid payment type");
+  if (["upload", "download", "storage"].includes(type) === false) return ctx.throw(400, "Invalid payment type");
 
-  const account = await getAccount(id);
+  const account = await getAccount(pubkey);
   if (!account) return ctx.throw(400, "Missing account");
 
   const total = payment.proofs.reduce((t, p) => t + p.amount, 0);

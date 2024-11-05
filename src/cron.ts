@@ -22,7 +22,7 @@ async function chargeForStorage(delta: number) {
     } else {
       // charge accounts
       log(`Charging ${blob.owners} owners for ${blob.sha256}`);
-      const cost = (blob.size / GIGABYTE) * (hours / MONTH_IN_HOURS) * 1000;
+      const cost = (blob.size / GIGABYTE) * (hours / MONTH_IN_HOURS);
       const costPerAccount = Math.max(cost / blob.owners.length, 1);
 
       for (const pubkey of blob.owners) deductAccount(pubkey, "storage", Math.round(costPerAccount));

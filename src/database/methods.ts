@@ -35,11 +35,15 @@ export type Account = {
   download: number;
 };
 
-export function getAccount(id: string) {
-  return db.prepare<string, Account>(`SELECT * FROM accounts WHERE id = ?`).get(id);
-}
-export function getAccountFromPubkey(pubkey: string) {
-  return db.prepare<string, Account>(`SELECT * FROM accounts WHERE pubkey = ?`).get(pubkey);
+export function getAccount(pubkey: string) {
+  const account = db.prepare<string, Account>(`SELECT * FROM accounts WHERE pubkey = ?`).get(pubkey);
+  if (account) {
+    account.upload = account.upload / 1000;
+    account.storage = account.storage / 1000;
+    account.download = account.download / 1000;
+
+    return account;
+  }
 }
 
 export function createAccount(pubkey: string) {
@@ -48,20 +52,23 @@ export function createAccount(pubkey: string) {
 }
 
 export function checkAccount(pubkey: string, type: AccountType) {
-  const account = getAccountFromPubkey(pubkey);
+  const account = getAccount(pubkey);
   if (!account) return false;
   return account[type] > 0;
 }
 
 /** @param amount amount in msats */
 export function topupAccount(pubkey: string, type: AccountType, amount: number) {
-  db.prepare<[number, string]>(`UPDATE accounts SET ${type} = ${type} + ? WHERE pubkey = ?`).run(amount, pubkey);
+  db.prepare<[number, string]>(`UPDATE accounts SET ${type} = ${type} + ? WHERE pubkey = ?`).run(
+    Math.round(amount * 1000),
+    pubkey,
+  );
 }
 
 /** @param amount amount in msats */
 export function deductAccount(pubkey: string, type: AccountType, amount: number) {
   db.prepare<[number, string]>(`UPDATE accounts SET ${type} = MAX(${type} - ?, 0) WHERE pubkey = ?`).run(
-    amount,
+    Math.round(amount * 1000),
     pubkey,
   );
 }

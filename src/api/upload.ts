@@ -96,8 +96,8 @@ router.put<UploadState & TempFileState>("/upload", uploadMiddleware(), async (ct
   // deduct account
   if (UPLOAD_COST > 0) {
     const sizeInGb = ctx.state.uploadSize / GIGABYTE;
-    const cost = Math.round(Math.max(sizeInGb * UPLOAD_COST * 1000, 1));
-    log(`Charging ${npubEncode(pubkey)} ${cost / 1000}${UNIT} for ${formatFileSize(ctx.state.uploadSize)} uploaded`);
+    const cost = Math.round(Math.max(sizeInGb * UPLOAD_COST, 1));
+    log(`Charging ${npubEncode(pubkey)} ${cost}${UNIT} for ${formatFileSize(ctx.state.uploadSize)} uploaded`);
     await deductAccount(pubkey, "upload", cost);
   }
 
