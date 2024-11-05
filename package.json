@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node build/index.js",
     "build": "tsc",
-    "build-spa": "cd spa && pnpm install && pnpm build && cp -r dist/* ../public",
+    "build-ui": "cd ui && pnpm install && pnpm build && cp -r dist/* ../public",
     "dev": "nodemon -i '**/data/**' --exec 'node' --loader @swc-node/register/esm src/index.ts",
     "format": "prettier -w ."
   },

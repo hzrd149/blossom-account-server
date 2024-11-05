@@ -13,14 +13,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 
 FROM base AS build
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store cd spa && pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store cd ui && pnpm install --frozen-lockfile
 RUN pnpm build
-RUN cd spa && pnpm build
+RUN cd ui && pnpm build
 
 FROM base AS main
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build ./app/build ./build
-COPY --from=build ./app/spa/dist ./public
+COPY --from=build ./app/ui/dist ./public
 
 VOLUME [ "/app/data" ]
 EXPOSE 3000
