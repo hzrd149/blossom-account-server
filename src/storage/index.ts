@@ -1,5 +1,6 @@
 import { mkdirp } from "mkdirp";
-import { LocalStorage, IBlobStorage } from "blossom-server-sdk/storage";
+import { type IBlobStorage } from "blossom-server-sdk";
+import { LocalStorage } from "blossom-server-sdk/storage/local";
 
 async function createStorage() {
   await mkdirp("data/blobs");

@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import { BlossomSQLite } from "blossom-server-sdk/metadata/sqlite";
 import { mkdirp } from "mkdirp";
-import { dirname } from "path";
+import { dirname } from "node:path";
 
 await mkdirp(dirname("data/database.sqlite"));
 

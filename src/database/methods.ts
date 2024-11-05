@@ -1,8 +1,8 @@
 import { NostrEvent } from "nostr-tools";
 import { nanoid } from "nanoid";
+import { BlobMetadata } from "blossom-server-sdk";
 
 import db from "./db.js";
-import { BlobMetadata } from "blossom-server-sdk";
 
 export async function addToken(token: { id: string; event: NostrEvent; expiration: number; type: string }) {
   db.prepare(`INSERT INTO tokens (id, pubkey, type, expiration, event) VALUES (?, ?, ?, ?, ?)`).run(

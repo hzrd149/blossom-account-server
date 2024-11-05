@@ -1,4 +1,4 @@
-import { RouterParamContext } from "@koa/router";
+import { type RouterParamContext } from "@koa/router";
 import { ParameterizedContext } from "koa";
 
 export function getHashFromParams(ctx: ParameterizedContext & RouterParamContext) {

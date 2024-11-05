@@ -1,9 +1,9 @@
 import { Middleware } from "koa";
-import fs from "fs";
-import pfs from "fs/promises";
-import * as path from "path";
-import * as os from "os";
-import * as crypto from "crypto";
+import fs from "node:fs";
+import pfs from "node:fs/promises";
+import * as path from "node:path";
+import * as os from "node:os";
+import * as crypto from "node:crypto";
 
 /** Extended Koa context state including temp file path */
 export type TempFileState = {
