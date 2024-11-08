@@ -4,5 +4,5 @@ node_modules
 .github
 database.json
 dist
-admin/node_modules
+ui/node_modules
 config.yml

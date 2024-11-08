@@ -10,6 +10,7 @@
     "start": "node build/index.js",
     "build": "tsc",
     "build-ui": "cd ui && pnpm install && pnpm build && cp -r dist/* ../public",
+    "prepublish": "pnpm build && pnpm build-ui",
     "dev": "nodemon -i '**/data/**' --exec 'node' --loader @swc-node/register/esm src/index.ts",
     "format": "prettier -w ."
   },
