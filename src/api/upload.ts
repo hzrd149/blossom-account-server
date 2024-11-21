@@ -46,7 +46,7 @@ router.all<CommonState>("/upload", async (ctx, next) => {
 
     // check auth
     if (!ctx.state.auth) return ctx.throw(401, "Auth required");
-    if ((await checkAccount(ctx.state.auth.pubkey, "upload")) === false)
+    if (UPLOAD_COST > 0 && (await checkAccount(ctx.state.auth.pubkey, "upload")) === false)
       return ctx.throw(400, "Upload balance depleted");
 
     // set tmp state
@@ -96,8 +96,10 @@ router.put<UploadState & TempFileState>("/upload", uploadMiddleware(), async (ct
   // deduct account
   if (UPLOAD_COST > 0) {
     const sizeInGb = ctx.state.uploadSize / GIGABYTE;
-    const cost = Math.round(Math.max(sizeInGb * UPLOAD_COST, 1));
-    log(`Charging ${npubEncode(pubkey)} ${cost}${UNIT} for ${formatFileSize(ctx.state.uploadSize)} uploaded`);
+    const cost = sizeInGb * UPLOAD_COST;
+    log(
+      `Charging ${npubEncode(pubkey)} ${cost.toFixed(3)}${UNIT} for ${formatFileSize(ctx.state.uploadSize)} uploaded`,
+    );
     await deductAccount(pubkey, "upload", cost);
   }
 

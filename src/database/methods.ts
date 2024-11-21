@@ -57,7 +57,7 @@ export function checkAccount(pubkey: string, type: AccountType) {
   return account[type] > 0;
 }
 
-/** @param amount amount in msats */
+/** @param amount amount in sats */
 export function topupAccount(pubkey: string, type: AccountType, amount: number) {
   db.prepare<[number, string]>(`UPDATE accounts SET ${type} = ${type} + ? WHERE pubkey = ?`).run(
     Math.round(amount * 1000),
@@ -65,7 +65,7 @@ export function topupAccount(pubkey: string, type: AccountType, amount: number) 
   );
 }
 
-/** @param amount amount in msats */
+/** @param amount amount in sats */
 export function deductAccount(pubkey: string, type: AccountType, amount: number) {
   db.prepare<[number, string]>(`UPDATE accounts SET ${type} = MAX(${type} - ?, 0) WHERE pubkey = ?`).run(
     Math.round(amount * 1000),

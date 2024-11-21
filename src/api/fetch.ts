@@ -31,11 +31,13 @@ router.get<CommonState>("/:hash", async (ctx) => {
     ctx.res.on("finish", () => {
       const sizeInGb = blob.size / GIGABYTE;
       const cost = sizeInGb * DOWNLOAD_COST;
-      const perAccount = Math.max(cost / accounts.length, 1);
+      const perAccount = cost / accounts.length;
 
-      log(`Charging ${accounts.length} accounts ${perAccount}${UNIT} for ${formatFileSize(blob.size)} download`);
+      log(
+        `Charging ${accounts.length} accounts ${perAccount.toFixed(3)}${UNIT} for ${formatFileSize(blob.size)} download`,
+      );
       for (const account of accounts) {
-        deductAccount(account.pubkey, "download", Math.round(perAccount));
+        deductAccount(account.pubkey, "download", perAccount);
       }
     });
   }
