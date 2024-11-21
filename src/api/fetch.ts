@@ -1,3 +1,5 @@
+import range from "koa-range";
+
 import { CommonState, router } from "./router.js";
 import { metadata } from "../database/db.js";
 import storage from "../storage/index.js";
@@ -9,7 +11,7 @@ import logger from "../logger.js";
 
 const log = logger.extend("Download");
 
-router.get<CommonState>("/:hash", async (ctx) => {
+router.get<CommonState>("/:hash", range, async (ctx) => {
   const hash = getHashFromParams(ctx);
   if (!(await metadata.hasBlob(hash)) || !(await storage.hasBlob(hash))) return ctx.throw(404, "Not found");
 
@@ -23,7 +25,8 @@ router.get<CommonState>("/:hash", async (ctx) => {
   const blob = await metadata.getBlob(hash);
 
   ctx.status = 200;
-  if (blob.type) ctx.set("Content-Type", blob.type);
+  if (blob.type) ctx.type = blob.type;
+  ctx.length = blob.size;
   ctx.body = await storage.readBlob(hash);
 
   if (DOWNLOAD_COST > 0) {

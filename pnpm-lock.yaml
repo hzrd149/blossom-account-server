@@ -11,6 +11,15 @@ importers:
       '@cashu/cashu-ts':
         specifier: 2.0.0-rc1
         version: 2.0.0-rc1
+      '@gudnuf/cornucopia':
+        specifier: link:../cornucopia/packages/cornucopia
+        version: link:../cornucopia/packages/cornucopia
+      '@gudnuf/cornucopia-locker-keyv':
+        specifier: link:../cornucopia/packages/cornucopia-locker-keyv
+        version: link:../cornucopia/packages/cornucopia-locker-keyv
+      '@gudnuf/cornucopia-sore-better-sqlite':
+        specifier: link:../cornucopia/packages/cornucopia-store-better-sqlite
+        version: link:../cornucopia/packages/cornucopia-store-better-sqlite
       '@koa/cors':
         specifier: ^5.0.0
         version: 5.0.0
@@ -41,6 +50,9 @@ importers:
       koa-mount:
         specifier: ^4.0.0
         version: 4.0.0
+      koa-range:
+        specifier: ^0.3.0
+        version: 0.3.0
       koa-static:
         specifier: ^5.0.0
         version: 5.0.0
@@ -78,6 +90,9 @@ importers:
       '@types/koa':
         specifier: ^2.15.0
         version: 2.15.0
+      '@types/koa-range':
+        specifier: ^0.3.5
+        version: 0.3.5
       '@types/koa-static':
         specifier: ^4.0.4
         version: 4.0.4
@@ -373,6 +388,9 @@ packages:
 
   '@types/koa-compose@3.2.8':
     resolution: {integrity: sha512-4Olc63RY+MKvxMwVknCUDhRQX1pFQoBZ/lXcRLP69PQkEpze/0cr8LNqJQe5NFb/b19DWi2a5bTi2VAlQzhJuA==}
+
+  '@types/koa-range@0.3.5':
+    resolution: {integrity: sha512-DvbLgWVctu3k0dnuQsb2If7ROdYvUK+oGOJTxFviQjfrMjaewZYM1IPYoH1yZ2zhcpD+hKzBiGi5DMOj0kLAQg==}
 
   '@types/koa-send@4.1.6':
     resolution: {integrity: sha512-vgnNGoOJkx7FrF0Jl6rbK1f8bBecqAchKpXtKuXzqIEdXTDO6dsSTjr+eZ5m7ltSjH4K/E7auNJEQCAd0McUPA==}
@@ -787,6 +805,10 @@ packages:
     resolution: {integrity: sha512-rm71jaA/P+6HeCpoRhmCv8KVBIi0tfGuO/dMKicbQnQW/YJntJ6MnnspkodoA4QstMVEZArsCphmd0bJEtoMjQ==}
     engines: {node: '>= 7.6.0'}
 
+  koa-range@0.3.0:
+    resolution: {integrity: sha512-Ich3pCz6RhtbajYXRWjIl6O5wtrLs6kE3nkXc9XmaWe+MysJyZO7K4L3oce1Jpg/iMgCbj+5UCiMm/rqVtcDIg==}
+    engines: {node: '>=7'}
+
   koa-send@5.0.1:
     resolution: {integrity: sha512-tmcyQ/wXXuxpDxyNXv5yNNkdAMdFRqwtegBXUaowiQzUKqJehttS0x2j0eOZDQAyloAth5w6wwBImnFzkUz3pQ==}
     engines: {node: '>= 8'}
@@ -1026,6 +1048,9 @@ packages:
 
   stream-json@1.9.0:
     resolution: {integrity: sha512-TqnfW7hRTKje7UobBzXZJ2qOEDJvdcSVgVIK/fopC03xINFuFqQs8RVjyDT4ry7TmOo2ueAXwpXXXG4tNgtvoQ==}
+
+  stream-slice@0.1.2:
+    resolution: {integrity: sha512-QzQxpoacatkreL6jsxnVb7X5R/pGw9OUv2qWTYWnmLpg4NdN31snPy/f3TdQE1ZUXaThRvj1Zw4/OGg0ZkaLMA==}
 
   strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
@@ -1417,6 +1442,10 @@ snapshots:
   '@types/keygrip@1.0.6': {}
 
   '@types/koa-compose@3.2.8':
+    dependencies:
+      '@types/koa': 2.15.0
+
+  '@types/koa-range@0.3.5':
     dependencies:
       '@types/koa': 2.15.0
 
@@ -1843,6 +1872,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  koa-range@0.3.0:
+    dependencies:
+      stream-slice: 0.1.2
+
   koa-send@5.0.1:
     dependencies:
       debug: 4.3.7(supports-color@5.5.0)
@@ -2129,6 +2162,8 @@ snapshots:
   stream-json@1.9.0:
     dependencies:
       stream-chain: 2.2.5
+
+  stream-slice@0.1.2: {}
 
   strict-uri-encode@2.0.0: {}
 

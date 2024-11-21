@@ -1,11 +1,13 @@
 import { PaymentRequest, PaymentRequestPayload, PaymentRequestTransportType } from "@cashu/cashu-ts";
 import { npubEncode } from "nostr-tools/nip19";
+import { sumProofs } from "@gudnuf/cornucopia/helpers";
 import { koaBody } from "koa-body";
 
 import { Account, AccountType, createAccount, getAccount, topupAccount } from "../database/methods.js";
 import { router } from "./router.js";
 import { DOWNLOAD_COST, MINTS, STORAGE_COST, UNIT, UPLOAD_COST } from "../env.js";
 import logger from "../logger.js";
+import wallet from "../database/wallet.js";
 
 const log = logger.extend("Account");
 
@@ -96,7 +98,10 @@ router.post("/account", koaBody(), async (ctx) => {
   const account = await getAccount(pubkey);
   if (!account) return ctx.throw(400, "Missing account");
 
-  const total = payment.proofs.reduce((t, p) => t + p.amount, 0);
+  // receive proofs
+  await wallet.receive(payment);
+
+  const total = sumProofs(payment.proofs);
   log(`Adding ${total}${UNIT} from ${payment.mint} to ${npubEncode(account.pubkey)} ${type} account`);
   topupAccount(account.pubkey, type as AccountType, total);
 
